@@ -1,17 +1,16 @@
 {
-  "name": "@/tldraw-web-component",
+  "name": "@tldraw-web-component/tldraw",
   "version": "1.0.0",
-  "description": "This provides a webcomponent version of tldraw that can be used in any framework.",
+  "description": "A wrapper around the little drawing app.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup index.ts",
     "lint": "tsc",
-    "buildw": "vite build"
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/neosh11/tldraw-web-component.git"
+    "url": "git+https://github.com/neosh11/tldraw-web-component.git"
   },
   "keywords": [
     "demo"
@@ -33,14 +32,13 @@
     "tslib": "^2.8.1",
     "tsup": "^8.0.2",
     "typescript": "^5.7.3",
-    "vite": "^6.0.7"
-  },
-  "dependencies": {
+    "vite": "^6.0.7",
     "@babel/standalone": "^7.26.5",
     "@r2wc/react-to-web-component": "^2.0.4",
     "@tldraw/state": "^3.7.0",
     "@tldraw/sync": "^3.7.0",
     "react-to-webcomponent": "^2.0.1",
     "tldraw": "^3.7.0"
-  }
+  },
+  "dependencies": {}
 }
