@@ -1,7 +1,6 @@
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -9,17 +8,20 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: [
-    './app.component.css'
-  ]
+    '../../node_modules/@tldraw-web-component/tldraw/dist/tldraw-web-component.css',
+    './app.component.css',
+  ],
+  encapsulation: ViewEncapsulation.None
 })
+
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('tldraw') tldraw!: ElementRef;
   /** This function name is attached to the global scope, required due to the cooked nature of webcomponents */
   globalMultiplayerAssetsFuncName = '__SECRET_DOM_DO_NOT_USE_MULTIPLAYER_ASSETS_FUNC';
 
   async ngOnInit(): Promise<void> {
-    await this.loadStylesheet('/assets/tldraw/tldraw-web-component.css');
-    await this.loadScript("assets/tldraw/tldraw-web-component.umd.js");
+    await import('@tldraw-web-component/tldraw');
+
     // generate random alphanumeric string, with no . or _ characters
     const uuid = Math.random().toString(36).replace(/[^a-z]+/g, '')
     this.globalMultiplayerAssetsFuncName = `${this.globalMultiplayerAssetsFuncName}_${uuid}`;

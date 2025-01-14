@@ -1,9 +1,21 @@
 {
   "name": "@tldraw-web-component/tldraw",
   "version": "1.0.0",
+  "type": "module",
   "description": "A wrapper around the little drawing app.",
-  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.js"
+    },
+    "./style.css": "./dist/tldraw-web-component.css"
+  },
   "scripts": {
     "lint": "tsc",
     "build": "vite build"
@@ -13,32 +25,28 @@
     "url": "git+https://github.com/neosh11/tldraw-web-component.git"
   },
   "keywords": [
-    "demo"
+    "tldraw",
+    "angular",
+    "canvas",
+    "webcomponent"
   ],
   "author": "Hungrimind",
   "license": "ISC",
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
+    "@babel/standalone": "^7.26.5",
+    "@r2wc/react-to-web-component": "^2.0.4",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@tldraw/state": "^3.7.0",
+    "@tldraw/sync": "^3.7.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.17",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "tslib": "^2.8.1",
-    "tsup": "^8.0.2",
-    "typescript": "^5.7.3",
-    "vite": "^6.0.7",
-    "@babel/standalone": "^7.26.5",
-    "@r2wc/react-to-web-component": "^2.0.4",
-    "@tldraw/state": "^3.7.0",
-    "@tldraw/sync": "^3.7.0",
+    "prettier": "3.4.2",
     "react-to-webcomponent": "^2.0.1",
-    "tldraw": "^3.7.0"
-  },
-  "dependencies": {}
+    "tldraw": "^3.7.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
 }
