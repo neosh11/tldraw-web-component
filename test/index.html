@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Tldraw Demo as a Web Component</title>
+    <link rel="stylesheet" href="tldraw-web-component.css" />
+</head>
+
+<style>
+    html,
+    body {
+        height: 100vh;
+        margin: 0 auto;
+    }
+</style>
+<body>
+    <div style="display: flex;flex-flow: column;height: 100%;">
+        <h1>Pure HTML + TlDraw Web Component</h1>
+        <div style="flex-grow: 1;">
+            <tldraw-sync-web-component room-id="10" server-uri="http://localhost:5858"
+                multiplayer-assets-func="multiplayerAssets"
+                >
+            </tldraw-sync-web-component>
+        </div>
+
+    </div>
+
+    <script>
+        function multiplayerAssets() {
+            return {
+                async upload(_asset, file) {
+                    const id = Math.random().toString(36).substr(2, 9); // Generate a unique ID
+                    const objectName = `${id}-${file.name}`;
+                    const url = `${'http://localhost:5858/uploads'}/${encodeURIComponent(objectName)}`;
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        body: file,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to upload asset: ${response.statusText}`);
+                    }
+
+                    return url;
+                },
+                resolve(asset) {
+                    return asset.props.src;
+                },
+            };
+        }
+    </script>
+    <script src="./tldraw-web-component.umd.js"></script>
+</body>
+
+</html>

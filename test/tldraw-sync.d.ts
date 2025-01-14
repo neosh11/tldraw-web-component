@@ -1,0 +1,1 @@
+../tldraw/dist/tldraw-sync.d.ts
