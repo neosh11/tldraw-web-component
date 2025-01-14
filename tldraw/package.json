@@ -1,6 +1,6 @@
 {
-  "name": "@tldraw-web-component/tldraw",
-  "version": "1.0.0",
+  "name": "tldraw-web-component",
+  "version": "1.0.1",
   "type": "module",
   "description": "A wrapper around the little drawing app.",
   "files": [
@@ -22,16 +22,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neosh11/tldraw-web-component.git"
+    "url": "https://github.com/neosh11/tldraw-web-component/tree/main/tldraw"
   },
   "keywords": [
     "tldraw",
     "angular",
     "canvas",
-    "webcomponent"
+    "webcomponent",
+    "infinite"
   ],
-  "author": "Hungrimind",
-  "license": "ISC",
+  "author": "neosh11",
+  "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
     "@babel/standalone": "^7.26.5",
     "@r2wc/react-to-web-component": "^2.0.4",
