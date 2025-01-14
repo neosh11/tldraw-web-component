@@ -8,7 +8,6 @@
 > Make tldraw work with frameworks other than React;
 
 ## Getting Started
-
 Install with
 
 ```
@@ -18,6 +17,8 @@ npm i tldraw-web-component
 ## Usage with angular
 
 Check `examples/angular`
+
+<img width="1512" alt="Screenshot 2025-01-14 at 10 36 56 pm" src="https://github.com/user-attachments/assets/3bd15c35-5ab6-430a-a961-db84fedc5218" />
 
 ## Contributing
 
