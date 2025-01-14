@@ -3,7 +3,7 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 
-# tldraw web-component
+# tldraw web component
 
 > Make tldraw work with frameworks other than React;
 
@@ -12,7 +12,7 @@
 Install with
 
 ```
-npm i tldraw
+npm i tldraw-web-component
 ```
 
 ## Usage with angular

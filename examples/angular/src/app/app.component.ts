@@ -8,7 +8,7 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: [
-    '../../node_modules/@tldraw-web-component/tldraw/dist/tldraw-web-component.css',
+    '../../node_modules/tldraw-web-component/dist/tldraw-web-component.css',
     './app.component.css',
   ],
   encapsulation: ViewEncapsulation.None
@@ -20,7 +20,7 @@ export class AppComponent implements OnInit, OnDestroy {
   globalMultiplayerAssetsFuncName = '__SECRET_DOM_DO_NOT_USE_MULTIPLAYER_ASSETS_FUNC';
 
   async ngOnInit(): Promise<void> {
-    await import('@tldraw-web-component/tldraw');
+    await import('tldraw-web-component');
 
     // generate random alphanumeric string, with no . or _ characters
     const uuid = Math.random().toString(36).replace(/[^a-z]+/g, '')
