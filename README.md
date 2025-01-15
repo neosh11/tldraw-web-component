@@ -85,8 +85,7 @@ Check `examples/angular`
 | `license-key`  | string    |  The license key. |
 | `max-asset-size`  | number    |  The maximum size (in bytes) of an asset. Assets larger than this will be rejected. Defaults to 10mb (10 * 1024 * 1024). |
 | `max-image-dimension`  | number    |  The maximum dimension (width or height) of an image. Images larger than this will be rescaled to fit. Defaults to infinity. |
-| `session-id`  | string    |  The license key. |
-| `get-user`  | function    |  Returns an object with shape { id?: string; name?: string; color?: string; colorScheme?: "dark" | "light" | "system" | undefined; } | undefined;` |
+| `get-user-func`  | function    |  Returns an object with shape { id?: string; name?: string; color?: string; colorScheme?: "dark" | "light" | "system" | undefined; } | undefined;` |
 
 
 ## Contributing
