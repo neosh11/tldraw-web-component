@@ -37,7 +37,11 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   onMount,
   ...props
 }) => {
-  const uri = `${serverUri}/connect/${roomId}`;
+  let uri = serverUri;
+  if (!roomId) {
+    uri = `${serverUri}/connect/${roomId}`;
+  }
+
   const multiplayerAssets = useMemo(
     () => multiplayerAssetsFunc?.(),
     [multiplayerAssetsFunc],
@@ -52,7 +56,6 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   })
 
   const user = useTldrawUser({ userPreferences, setUserPreferences })
-
   const store = useSync({
     uri: uri,
     assets: multiplayerAssets,

@@ -12,7 +12,9 @@ export default defineConfig({
     ],
     define: {
         // This will replace `process.env` with `{}` during the build
-        "process.env": {},
+        "process.env": {
+            NODE_ENV: "production"
+        },
     },
     build: {
         lib: {
