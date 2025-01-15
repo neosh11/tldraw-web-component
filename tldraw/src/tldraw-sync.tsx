@@ -3,6 +3,7 @@ import "tldraw/tldraw.css";
 
 import React, { useMemo, useState } from "react";
 import { TLAssetStore, Tldraw, TLOnMountHandler, TLUser, TLUserPreferences, useTldrawUser } from "tldraw";
+import { TldrawWCUserProps } from "./interfaces";
 
 interface TldrawSyncProps {
   roomId: string;
@@ -23,12 +24,7 @@ interface TldrawSyncProps {
   licenseKey?: string | undefined;
   maxAssetSize?: number | undefined;
   maxImageDimension?: number | undefined;
-  getUser?: () => {
-    id?: string;
-    name?: string;
-    color?: string;
-    colorScheme?: "dark" | "light" | "system" | undefined;
-  } | undefined;
+  getUser?: () => TldrawWCUserProps | undefined;
 }
 
 export const TldrawSync: React.FC<TldrawSyncProps> = ({

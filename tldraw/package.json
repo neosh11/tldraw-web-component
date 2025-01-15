@@ -1,6 +1,6 @@
 {
   "name": "tldraw-web-component",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "type": "module",
   "description": "A wrapper around the little drawing app.",
   "files": [

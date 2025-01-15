@@ -1,5 +1,6 @@
 import r2wc from "@r2wc/react-to-web-component";
 import { TldrawSync } from "./tldraw-sync";
+export * from './interfaces'
 
 export const TldrawSyncWebComponent = r2wc(TldrawSync, {
   props: {
@@ -13,12 +14,10 @@ export const TldrawSyncWebComponent = r2wc(TldrawSync, {
     hideUi: "boolean",
     inferDarkMode: "boolean",
     onMount: "function",
-    defaultName: "string",
     initialState: "string",
     licenseKey: "string",
     maxAssetSize: "number",
     maxImageDimension: "number",
-    sessionId: "string",
     getUser: "function",
   },
 });
