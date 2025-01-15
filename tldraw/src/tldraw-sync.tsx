@@ -2,7 +2,7 @@ import { useSync } from "@tldraw/sync";
 import "tldraw/tldraw.css";
 
 import React, { useMemo, useState } from "react";
-import { TLAssetStore, Tldraw, TLOnMountHandler, TLUser, TLUserPreferences, useTldrawUser } from "tldraw";
+import { TLAssetStore, Tldraw, TLOnMountHandler, TLPresenceUserInfo, TLUser, TLUserPreferences, useTldrawUser } from "tldraw";
 import { TldrawWCUserProps } from "./interfaces";
 
 interface TldrawSyncProps {
@@ -50,10 +50,16 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
     color: tlUser?.color,
     colorScheme: tlUser?.colorScheme
   })
+
   const user = useTldrawUser({ userPreferences, setUserPreferences })
+
   const store = useSync({
     uri: uri,
     assets: multiplayerAssets,
+    userInfo: {
+      id: userPreferences.id,
+      name: userPreferences.name,
+    },
   });
 
   if (debug) {
