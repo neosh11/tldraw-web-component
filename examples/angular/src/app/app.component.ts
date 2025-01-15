@@ -8,7 +8,6 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: [
-    '../../node_modules/tldraw-web-component/dist/tldraw-web-component.css',
     './app.component.css',
   ],
   encapsulation: ViewEncapsulation.None
@@ -65,34 +64,4 @@ export class AppComponent implements OnInit, OnDestroy {
       },
     }
   }
-
-  private async loadStylesheet(href: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Check if the stylesheet is already loaded
-      if (document.querySelector(`link[href="${href}"]`)) {
-        resolve(); // Stylesheet is already loaded
-        return;
-      }
-
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = href
-      link.type = 'text/css';
-      link.onload = () => resolve();
-      link.onerror = () => reject(`Could not load the stylesheet: ${href}`);
-      document.head.appendChild(link);
-    });
-  }
-
-  private async loadScript(href: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = href;
-      script.onload = () => resolve();
-      script.onerror = () => reject("Could not load the script")
-      document.body.appendChild(script);
-    });
-
-  }
-
 }

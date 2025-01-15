@@ -3,21 +3,21 @@ import { TldrawSync } from "./tldraw-sync";
 
 const TldrawSyncWebComponent = reactToWebComponent(TldrawSync, {
   props: {
+    // Sync
     roomId: "string",
     serverUri: "string",
     queryParams: "json",
     multiplayerAssetsFunc: "function",
+    // UI
     autoFocus: "boolean",
     forceMobile: "boolean",
     hideUi: "boolean",
     inferDarkMode: "boolean",
     onMount: "function",
-    defaultName: "string",
     initialState: "string",
     licenseKey: "string",
     maxAssetSize: "number",
     maxImageDimension: "number",
-    sessionId: "string",
     getUser: "function",
   },
 });

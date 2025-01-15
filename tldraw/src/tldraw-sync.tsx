@@ -1,8 +1,8 @@
 import { useSync } from "@tldraw/sync";
 import "tldraw/tldraw.css";
 
-import React, { useMemo } from "react";
-import { TLAssetStore, Tldraw, TLOnMountHandler, TLUser } from "tldraw";
+import React, { useMemo, useState } from "react";
+import { TLAssetStore, Tldraw, TLOnMountHandler, TLUser, TLUserPreferences, useTldrawUser } from "tldraw";
 
 interface TldrawSyncProps {
   roomId: string;
@@ -18,14 +18,17 @@ interface TldrawSyncProps {
   hideUi?: boolean | undefined;
   inferDarkMode?: boolean | undefined;
   onMount?: TLOnMountHandler | undefined; //  function
-  defaultName?: string | undefined;
 
   initialState?: string | undefined;
   licenseKey?: string | undefined;
   maxAssetSize?: number | undefined;
   maxImageDimension?: number | undefined;
-  sessionId?: string | undefined;
-  getUser?: () => TLUser | undefined;
+  getUser?: () => {
+    id?: string;
+    name?: string;
+    color?: string;
+    colorScheme?: "dark" | "light" | "system" | undefined;
+  } | undefined;
 }
 
 export const TldrawSync: React.FC<TldrawSyncProps> = ({
@@ -38,13 +41,20 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   onMount,
   ...props
 }) => {
-  const user = getUser?.();
   const uri = `${serverUri}/connect/${roomId}`;
   const multiplayerAssets = useMemo(
     () => multiplayerAssetsFunc?.(),
     [multiplayerAssetsFunc],
   );
 
+  const tlUser = getUser?.();
+  const [userPreferences, setUserPreferences] = useState<TLUserPreferences>({
+    id: tlUser?.id ?? 'user-' + Math.random(),
+    name: tlUser?.name ?? 'User',
+    color: tlUser?.color,
+    colorScheme: tlUser?.colorScheme
+  })
+  const user = useTldrawUser({ userPreferences, setUserPreferences })
   const store = useSync({
     uri: uri,
     assets: multiplayerAssets,
@@ -86,7 +96,8 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
           height: "100%",
         }}
       >
-        <Tldraw store={store} user={user} {...props} />
+        <Tldraw
+          store={store} user={user} {...props} />
       </div>
     </>
   );
