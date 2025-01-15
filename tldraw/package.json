@@ -1,6 +1,6 @@
 {
   "name": "tldraw-web-component",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "type": "module",
   "description": "A wrapper around the little drawing app.",
   "files": [
@@ -13,8 +13,7 @@
     ".": {
       "import": "./dist/index.esm.js",
       "require": "./dist/index.umd.js"
-    },
-    "./style.css": "./dist/tldraw-web-component.css"
+    }
   },
   "scripts": {
     "lint": "tsc",
@@ -48,6 +47,7 @@
     "tldraw": "^3.7.0",
     "tslib": "^2.8.1",
     "typescript": "^5.7.3",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "vite-plugin-css-injected-by-js": "^3.5.2"
   }
 }
