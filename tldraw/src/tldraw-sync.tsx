@@ -24,7 +24,7 @@ interface TldrawSyncProps {
   licenseKey?: string | undefined;
   maxAssetSize?: number | undefined;
   maxImageDimension?: number | undefined;
-  getUser?: () => TldrawWCUserProps | undefined;
+  getUserFunc?: () => TldrawWCUserProps | undefined;
 }
 
 export const TldrawSync: React.FC<TldrawSyncProps> = ({
@@ -33,7 +33,7 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   serverUri,
   queryParams,
   multiplayerAssetsFunc,
-  getUser,
+  getUserFunc,
   onMount,
   ...props
 }) => {
@@ -43,7 +43,7 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
     [multiplayerAssetsFunc],
   );
 
-  const tlUser = getUser?.();
+  const tlUser = getUserFunc?.();
   const [userPreferences, setUserPreferences] = useState<TLUserPreferences>({
     id: tlUser?.id ?? 'user-' + Math.random(),
     name: tlUser?.name ?? 'User',

@@ -18,7 +18,7 @@ const TldrawSyncWebComponent = reactToWebComponent(TldrawSync, {
     licenseKey: "string",
     maxAssetSize: "number",
     maxImageDimension: "number",
-    getUser: "function",
+    getUserFunc: "function",
   },
 });
 
