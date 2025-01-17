@@ -2,8 +2,8 @@ import { useSync } from "@tldraw/sync";
 import "tldraw/tldraw.css";
 
 import React, { useMemo, useState } from "react";
-import { TLAssetStore, Tldraw, TLOnMountHandler, TLPresenceUserInfo, TLUser, TLUserPreferences, useTldrawUser } from "tldraw";
-import { TldrawWCUserProps } from "./interfaces";
+import { TLAssetStore, Tldraw, TLOnMountHandler, TLUserPreferences, useTldrawUser } from "tldraw";
+import { TldrawWCUserProps } from "../interfaces";
 
 interface TldrawSyncProps {
   roomId: string;
@@ -38,7 +38,7 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   ...props
 }) => {
   let uri = serverUri;
-  if (!roomId) {
+  if (!!roomId) {
     uri = `${serverUri}/connect/${roomId}`;
   }
 
