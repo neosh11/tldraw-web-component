@@ -3,4 +3,6 @@
 export interface Environment {
 	TLDRAW_BUCKET: R2Bucket
 	TLDRAW_DURABLE_OBJECT: DurableObjectNamespace
+	MY_RATE_LIMITER: RateLimit
+	MY_SECRET: string
 }

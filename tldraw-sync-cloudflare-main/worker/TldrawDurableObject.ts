@@ -1,4 +1,4 @@
-import { RoomSnapshot, TLSocketRoom } from '@tldraw/sync-core'
+import { RoomSnapshot, TLSocketRoom, TLSyncErrorCloseEventCode, TLSyncErrorCloseEventReason } from '@tldraw/sync-core'
 import {
 	TLRecord,
 	createTLSchema,
@@ -8,10 +8,13 @@ import {
 import { AutoRouter, IRequest, error } from 'itty-router'
 import throttle from 'lodash.throttle'
 import { Environment } from './types'
+import { preview } from './schema'
 
 // add custom shapes and bindings here if needed:
 const schema = createTLSchema({
-	shapes: { ...defaultShapeSchemas },
+	shapes: {
+		...defaultShapeSchemas, preview: preview
+	},
 	// bindings: { ...defaultBindingSchemas },
 })
 
@@ -28,11 +31,14 @@ export class TldrawDurableObject {
 	// load it once.
 	private roomPromise: Promise<TLSocketRoom<TLRecord, void>> | null = null
 
+	private MY_SECRET: string
+
 	constructor(
 		private readonly ctx: DurableObjectState,
 		env: Environment
 	) {
 		this.r2 = env.TLDRAW_BUCKET
+		this.MY_SECRET = env.MY_SECRET
 
 		ctx.blockConcurrencyWhile(async () => {
 			this.roomId = ((await this.ctx.storage.get('roomId')) ?? null) as string | null
@@ -47,7 +53,11 @@ export class TldrawDurableObject {
 	})
 		// when we get a connection request, we stash the room id if needed and handle the connection
 		.get('/connect/:roomId', async (request) => {
-			if (!this.roomId) {
+			const { token } = request.query
+			if (token === this.MY_SECRET) {
+				request.params.roomId = request.params.roomId + this.MY_SECRET
+			}
+			if (!this.roomId || this.roomId !== request.params.roomId) {
 				await this.ctx.blockConcurrencyWhile(async () => {
 					await this.ctx.storage.put('roomId', request.params.roomId)
 					this.roomId = request.params.roomId
@@ -73,6 +83,15 @@ export class TldrawDurableObject {
 
 		// load the room, or retrieve it if it's already loaded
 		const room = await this.getRoom()
+
+		const closeSocket = (reason: TLSyncErrorCloseEventReason) => {
+			serverWebSocket.close(TLSyncErrorCloseEventCode, reason)
+			return new Response(null, { status: 101, webSocket: clientWebSocket })
+		}
+
+		if (room.getNumActiveSessions() > 10) {
+			return closeSocket(TLSyncErrorCloseEventReason.ROOM_FULL)
+		}
 
 		// connect the client to the room
 		room.handleSocketConnect({ sessionId, socket: serverWebSocket })
