@@ -1,59 +1,131 @@
-import cors from '@fastify/cors'
-import websocketPlugin from '@fastify/websocket'
-import fastify from 'fastify'
-import { loadAsset, storeAsset } from './assets'
-import { makeOrLoadRoom } from './room'
-import { unfurl } from './unfurl'
+import express from 'express'
+import { WebSocketServer } from 'ws'
+import { createServer } from 'http'
+import throttle from 'lodash.throttle'
+import {
+    TLSocketRoom,
+    RoomSnapshot,
+    TLSyncErrorCloseEventCode,
+    TLSyncErrorCloseEventReason,
+} from '@tldraw/sync-core'
+import {
+    TLRecord,
+    createTLSchema,
+    defaultShapeSchemas,
+} from '@tldraw/tlschema'
 
-const PORT = 5858
+const {
+    MY_SECRET = 'MY_SECRET',
+} = process.env
 
-// For this example we use a simple fastify server with the official websocket plugin
-// To keep things simple we're skipping normal production concerns like rate limiting and input validation.
-const app = fastify()
-app.register(websocketPlugin)
-app.register(cors, { origin: '*' })
+async function putRoomSnapshotToS3(roomId: string, snapshotJson: string) {
+    // Example placeholder:
+    // await s3Client.putObject({
+    //   Bucket: 'TLDRAW_BUCKET',
+    //   Key: `rooms/${roomId}`,
+    //   Body: snapshotJson,
+    // })
+}
 
-app.register(async (app) => {
-    // This is the main entrypoint for the multiplayer sync
-    app.get('/connect/:roomId', { websocket: true }, async (socket, req) => {
-        // The roomId comes from the URL pathname
-        const roomId = (req.params as any).roomId as string
-        // The sessionId is passed from the client as a query param,
-        // you need to extract it and pass it to the room.
-        const sessionId = (req.query as any)?.['sessionId'] as string
+async function getRoomSnapshotFromS3(roomId: string): Promise<RoomSnapshot | null> {
+    // Example placeholder:
+    // const response = await s3Client.getObject({
+    //   Bucket: 'TLDRAW_BUCKET',
+    //   Key: `rooms/${roomId}`,
+    // })
+    // if (response.Body) {
+    //   const jsonString = await streamToString(response.Body)
+    //   return JSON.parse(jsonString) as RoomSnapshot
+    // }
+    return null
+}
 
-        // Here we make or get an existing instance of TLSocketRoom for the given roomId
-        const room = await makeOrLoadRoom(roomId)
-        // and finally connect the socket to the room
-        room.handleSocketConnect({ sessionId, socket })
+/* ---------------------------------------------------------------------
+   2) Create the Tldraw schema and an in-memory store
+   --------------------------------------------------------------------- */
+
+const schema = createTLSchema({
+    shapes: {
+        ...defaultShapeSchemas,
+    },
+})
+
+const rooms: Record<string, TLSocketRoom<TLRecord, void>> = {}
+async function getOrCreateRoom(roomId: string): Promise<TLSocketRoom<TLRecord, void>> {
+    if (rooms[roomId]) {
+        return rooms[roomId]
+    }
+    const initialSnapshot = await getRoomSnapshotFromS3(roomId)
+    const room = new TLSocketRoom<TLRecord, void>({
+        schema,
+        initialSnapshot: initialSnapshot ?? undefined,
+        onDataChange: throttle(async () => {
+            // Persist the updated state to R2
+            const snapshot = JSON.stringify(room.getCurrentSnapshot())
+            await putRoomSnapshotToS3(roomId, snapshot)
+        }, 10_000),
     })
+    rooms[roomId] = room
+    return room
+}
 
-    // To enable blob storage for assets, we add a simple endpoint supporting PUT and GET requests
-    // But first we need to allow all content types with no parsing, so we can handle raw data
-    app.addContentTypeParser('*', (_, __, done) => done(null))
-    app.put('/uploads/:id', {}, async (req, res) => {
-        const id = (req.params as any).id as string
-        await storeAsset(id, req.raw)
-        res.send({ ok: true })
-    })
-    app.get('/uploads/:id', async (req, res) => {
-        const id = (req.params as any).id as string
-        const data = await loadAsset(id)
-        res.send(data)
-    })
+/* ---------------------------------------------------------------------
+   3) Setup the Express server with WebSocket upgrade
+   --------------------------------------------------------------------- */
 
-    // To enable unfurling of bookmarks, we add a simple endpoint that takes a URL query param
-    app.get('/unfurl', async (req, res) => {
-        const url = (req.query as any).url as string
-        res.send(await unfurl(url))
+const app = express()
+app.use(express.json())
+const server = createServer(app)
+const wss = new WebSocketServer({ noServer: true })
+server.on('upgrade', async (req, socket, head) => {
+    // Example path check:
+    const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+    if (!url.pathname.startsWith('/connect/')) {
+        // Not a recognized upgrade route
+        socket.destroy()
+        return
+    }
+
+    const roomId = url.pathname.replace('/connect/', '')
+    const sessionId = url.searchParams.get('sessionId')
+    const token = url.searchParams.get('token')
+
+    if (!sessionId) {
+        socket.destroy()
+        return
+    }
+
+    // If token must match MY_SECRET (similar to your DO code):
+    if (token === MY_SECRET) {
+        // Do something or rewrite the roomId if needed
+    }
+
+    // Let ws handle the handshake
+    wss.handleUpgrade(req, socket, head, async (clientWebSocket) => {
+        const room = await getOrCreateRoom(roomId)
+        if (room.getNumActiveSessions() > 10) {
+            // Force close with error code
+            clientWebSocket.close(
+                TLSyncErrorCloseEventCode,
+                TLSyncErrorCloseEventReason.ROOM_FULL
+            )
+            return
+        }
+        
+        clientWebSocket.on('close', () => {
+            console.log(`WS closed for sessionId ${sessionId} in room ${roomId}`)
+        })
+
+        room.handleSocketConnect({
+            sessionId,
+            socket: clientWebSocket,
+        })
+
+        console.log(`WS connected for sessionId ${sessionId} in room ${roomId}`)
     })
 })
 
-app.listen({ port: PORT }, (err) => {
-    if (err) {
-        console.error(err)
-        process.exit(1)
-    }
-
-    console.log(`Server started on port ${PORT}`)
+const PORT = process.env.PORT || 4455
+server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`)
 })

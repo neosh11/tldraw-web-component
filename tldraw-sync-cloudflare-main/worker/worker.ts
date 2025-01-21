@@ -1,4 +1,3 @@
-import { handleUnfurlRequest } from 'cloudflare-workers-unfurl'
 import { AutoRouter, cors, error, IRequest } from 'itty-router'
 import { handleAssetDownload, handleAssetUpload } from './assetUploads'
 import { Environment } from './types'
@@ -9,7 +8,9 @@ export { TldrawDurableObject } from './TldrawDurableObject'
 
 // we use itty-router (https://itty.dev/) to handle routing. in this example we turn on CORS because
 // we're hosting the worker separately to the client. you should restrict this to your own domain.
+// TODO update CORS settings
 const { preflight, corsify } = cors({ origin: '*' })
+
 const router = AutoRouter<IRequest, [env: Environment, ctx: ExecutionContext]>({
 	before: [preflight],
 	finally: [corsify],
@@ -35,9 +36,6 @@ const router = AutoRouter<IRequest, [env: Environment, ctx: ExecutionContext]>({
 
 	// they can be retrieved from the bucket too:
 	.get('/uploads/:uploadId', handleAssetDownload)
-
-	// bookmarks need to extract metadata from pasted URLs:
-	.get('/unfurl', handleUnfurlRequest)
 
 // export our router for cloudflare
 export default router
