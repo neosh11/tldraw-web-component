@@ -85,8 +85,8 @@ Check `examples/angular`
 | `license-key`  | string    |  The license key. |
 | `max-asset-size`  | number    |  The maximum size (in bytes) of an asset. Assets larger than this will be rejected. Defaults to 10mb (10 * 1024 * 1024). |
 | `max-image-dimension`  | number    |  The maximum dimension (width or height) of an image. Images larger than this will be rescaled to fit. Defaults to infinity. |
-| `get-user-func`  | function    |  Returns an object with shape { id?: string; name?: string; color?: string; colorScheme?: "dark" | "light" | "system" | undefined; } | undefined;` |
-
+| `get-user-func`  | function  |  Returns an object with shape {id?: string; name?: string; color?: string; colorScheme?: "dark" \| "light" \| "system" \| undefined; } \| undefined; |
+| `make-real-func`  | function  | Optional function that returns a promise (developerPrompt: any, image: any, messages: any) => Promise<any> |
 
 ## Contributing
 

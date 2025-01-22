@@ -1,9 +1,12 @@
 import { useSync } from "@tldraw/sync";
 import "tldraw/tldraw.css";
+import "../style.css";
 
 import React, { useMemo, useState } from "react";
-import { TLAssetStore, Tldraw, TLOnMountHandler, TLUserPreferences, useTldrawUser } from "tldraw";
-import { TldrawWCUserProps } from "../interfaces";
+import { DefaultMainMenu, defaultShapeUtils, DefaultSharePanel, TLAssetStore, Tldraw, TLOnMountHandler, TLUserPreferences, useDialogs, useTldrawUser } from "tldraw";
+import { MakeRealFunc, TldrawWCUserProps } from "../interfaces";
+import { MakeRealButton } from "./make-real-button";
+import { PreviewShapeUtil } from "../preview-shape/preview-shape";
 
 interface TldrawSyncProps {
   roomId: string;
@@ -13,7 +16,6 @@ interface TldrawSyncProps {
   debug?: boolean;
   queryParams?: Record<string, string>; // json
   /** This function must return TLAssetStore type */
-
   autoFocus?: boolean | undefined;
   forceMobile?: boolean | undefined;
   hideUi?: boolean | undefined;
@@ -25,7 +27,11 @@ interface TldrawSyncProps {
   maxAssetSize?: number | undefined;
   maxImageDimension?: number | undefined;
   getUserFunc?: () => TldrawWCUserProps | undefined;
+  makeRealFunc?: MakeRealFunc | undefined;
 }
+
+const shapeUtils = [PreviewShapeUtil]
+const allShapes = [...defaultShapeUtils, ...shapeUtils]
 
 export const TldrawSync: React.FC<TldrawSyncProps> = ({
   debug,
@@ -34,9 +40,34 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
   queryParams,
   multiplayerAssetsFunc,
   getUserFunc,
+  makeRealFunc,
   onMount,
   ...props
 }) => {
+
+
+  const components = useMemo(() => ({
+    SharePanel: () => <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 1rem",
+      }}
+    >
+      <MakeRealButton makeRealFunc={makeRealFunc} />
+      <DefaultSharePanel />
+    </div>,
+    MainMenu: () => (
+      <DefaultMainMenu>
+        {/* <DefaultMainMenuContent />
+              <Links /> */}
+      </DefaultMainMenu>
+    ),
+  }), [makeRealFunc])
+
+
   let uri = serverUri;
   if (!!roomId) {
     uri = `${serverUri}/connect/${roomId}`;
@@ -57,6 +88,7 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
 
   const user = useTldrawUser({ userPreferences, setUserPreferences })
   const store = useSync({
+    shapeUtils: allShapes,
     uri: uri,
     assets: multiplayerAssets,
     userInfo: {
@@ -102,8 +134,17 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
         }}
       >
         <Tldraw
-          store={store} user={user} {...props} />
+          store={store} user={user} {...props}
+          components={components}
+          shapeUtils={shapeUtils}
+        >
+          <InsideTldrawContext />
+        </Tldraw>
       </div>
     </>
   );
 };
+
+function InsideTldrawContext() {
+  return null
+}

@@ -21,6 +21,9 @@ export const TldrawSyncWebComponent = r2wc(TldrawSync, {
     maxAssetSize: "number",
     maxImageDimension: "number",
     getUserFunc: "function",
+    
+    // Additional Features
+    makeRealFunc: "function",
   },
 });
 

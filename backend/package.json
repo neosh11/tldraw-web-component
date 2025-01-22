@@ -22,6 +22,7 @@
     "@tldraw/sync": "^3.7.0",
     "@tldraw/sync-core": "^3.7.0",
     "express": "^4.21.2",
+    "@tldraw/tlschema": "^3.7.2",
     "fastify": "^5.2.1",
     "tldraw": "^3.7.2",
     "unfurl.js": "^6.4.0",

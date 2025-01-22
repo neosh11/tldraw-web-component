@@ -23,13 +23,13 @@ export async function getRequestErrors(request: IRequest, env: Environment): Pro
     }
 
     const secret = env.MY_SECRET
-    const { token } = request.query
-    if (!token || token === "") {
-        return closeConnection(TLSyncErrorCloseEventReason.FORBIDDEN)
-    }
-    if (token === secret) {
-        roomId = roomId + env.MY_SECRET
-    }
+    // const { token } = request.query
+    // if (!token || token === "") {
+    //     return closeConnection(TLSyncErrorCloseEventReason.FORBIDDEN)
+    // }
+    // if (token === secret) {
+    //     roomId = roomId + env.MY_SECRET
+    // }
     request.params.roomId = roomId
 }
 

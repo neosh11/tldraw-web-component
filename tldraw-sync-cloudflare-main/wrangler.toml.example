@@ -42,3 +42,4 @@ preview_bucket_name = 'tldraw-content-preview'
 
 [vars]
 MY_SECRET = 'secret'
+OPENAI_API_KEY = 'sk-proj-'

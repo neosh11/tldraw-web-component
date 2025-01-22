@@ -5,4 +5,5 @@ export interface Environment {
 	TLDRAW_DURABLE_OBJECT: DurableObjectNamespace
 	MY_RATE_LIMITER: RateLimit
 	MY_SECRET: string
+	OPENAI_API_KEY: string
 }
