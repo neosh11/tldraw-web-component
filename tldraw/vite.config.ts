@@ -13,7 +13,8 @@ export default defineConfig({
     define: {
         // This will replace `process.env` with `{}` during the build
         "process.env": {
-            NODE_ENV: "production"
+            NODE_ENV: "production",
+            NEXT_PUBLIC_TLDRAW_ENV: "production",
         },
     },
     build: {
