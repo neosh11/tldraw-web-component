@@ -272,7 +272,10 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 
 								{/* Add a chatbox at the bottom of the component */}
 								<div
+
 									style={{
+										background: 'var(--color-panel)',
+										border: '1px solid var(--color-muted-1)',
 										position: 'absolute',
 										top: '100%',
 										left: 0,
@@ -289,11 +292,13 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 										ref={textAreaRef}
 										onPointerDown={stopEventPropagation}
 										style={{
+											background: 'var(--color-panel)',
 											width: '100%',
 											height: 100,
 											border: '1px solid var(--color-panel-contrast)',
 											borderRadius: 'var(--radius-2)',
 											padding: 4,
+											color: 'var(--color-text-0)'
 										}}
 										placeholder="Suggest an improvement..."
 									/>
