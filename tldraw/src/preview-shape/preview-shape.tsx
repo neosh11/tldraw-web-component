@@ -116,8 +116,6 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 			// iframe.contentDocument.write(html)
 		}, [isLoading, shape.props.parts])
 
-		console.log(shape.props.html)
-
 		return (
 			<HTMLContainer className="tl-embed-container" id={shape.id}>
 				{isLoading ? (

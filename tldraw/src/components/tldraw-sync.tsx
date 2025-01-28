@@ -73,6 +73,10 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
     uri = `${serverUri}/connect/${roomId}`;
   }
 
+  if(queryParams){
+    uri = uri + '?' + new URLSearchParams(queryParams).toString();
+  }
+
   const multiplayerAssets = useMemo(
     () => multiplayerAssetsFunc?.(),
     [multiplayerAssetsFunc],

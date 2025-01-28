@@ -68,7 +68,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public getUserFunc(): TldrawWCUserProps {
-    console.log('getUserFunc called');
     return {
       id: '123',
       name: 'John Doe',
