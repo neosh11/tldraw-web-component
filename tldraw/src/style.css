@@ -135,3 +135,9 @@
     border-radius: 9px;
     cursor: pointer;
 }
+
+.base_font {
+    font-family: Inter, sans-serif;
+    font-weight: 600;
+    font-size: medium;
+}

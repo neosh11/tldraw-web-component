@@ -7,6 +7,7 @@ import { DefaultMainMenu, defaultShapeUtils, DefaultSharePanel, TLAssetStore, Tl
 import { MakeRealFunc, TldrawWCUserProps } from "../interfaces";
 import { MakeRealButton } from "./make-real-button";
 import { PreviewShapeUtil } from "../preview-shape/preview-shape";
+import { MakeRealFuncContext } from "../providers/make-real-func-provider";
 
 interface TldrawSyncProps {
   roomId: string;
@@ -73,7 +74,7 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
     uri = `${serverUri}/connect/${roomId}`;
   }
 
-  if(queryParams){
+  if (queryParams) {
     uri = uri + '?' + new URLSearchParams(queryParams).toString();
   }
 
@@ -137,13 +138,15 @@ export const TldrawSync: React.FC<TldrawSyncProps> = ({
           height: "100%",
         }}
       >
-        <Tldraw
-          store={store} user={user} {...props}
-          components={components}
-          shapeUtils={shapeUtils}
-        >
-          <InsideTldrawContext />
-        </Tldraw>
+        <MakeRealFuncContext.Provider value={{  makeRealFunc }}>
+          <Tldraw
+            store={store} user={user} {...props}
+            components={components}
+            shapeUtils={shapeUtils}
+          >
+            <InsideTldrawContext />
+          </Tldraw>
+        </MakeRealFuncContext.Provider>
       </div>
     </>
   );

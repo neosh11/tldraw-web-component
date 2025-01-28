@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { ReactElement, useEffect, useRef } from 'react'
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import {
 	DefaultSpinner,
 	Geometry2d,
@@ -19,6 +19,11 @@ import {
 } from 'tldraw'
 import React from 'react'
 import { Dropdown } from '../components/dropdown'
+import { useMakeRealFunc } from '../providers/make-real-func-provider'
+import { IMPROVEMENT_PROMPT } from '../lib/settings'
+import html2canvas from "html2canvas";
+import { htmlify } from '../lib/htmlify'
+
 
 export type MakeRealShape = TLBaseShape<
 	'preview',
@@ -74,7 +79,6 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 
 	override component(shape: MakeRealShape) {
 		const isEditing = useIsEditing(shape.id)
-
 		const boxShadow = useValue(
 			'box shadow',
 			() => {
@@ -98,6 +102,7 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 		const isLoading = linkUploadVersion === undefined || uploadedShapeId !== shape.id
 
 		const rCursor = useRef(0)
+		const { makeRealFunc } = useMakeRealFunc()
 
 		useEffect(() => {
 			if (!isLoading) {
@@ -121,6 +126,45 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 
 			rCursor.current = shape.props.parts.length
 		}, [isLoading, shape.props.parts])
+
+		const textAreaRef = useRef<HTMLTextAreaElement>(null);
+		// Tracks whether we're currently sending the request
+		const [isUpdating, setIsUpdating] = useState(false);
+
+		const handleSendMessage = useCallback(
+			async (
+				text: string,
+				htmlStr: string,
+				setIsUpdating: (value: boolean) => void
+			): Promise<string | undefined> => {
+				if (!text) return;
+				try {
+					setIsUpdating(true);
+					// const canvas = await html2canvas(htmlIframe.current!)
+					// const image = canvas.toDataURL("image/png", 1.0);
+					const response = await makeRealFunc?.(
+						IMPROVEMENT_PROMPT,
+						"",
+						[
+							{ type: 'text', text: `Your old code: ${htmlify(htmlStr)}` },
+							{
+								type: 'text',
+								text: `Client message: ${text}`,
+							}]
+					);
+					if (!response) {
+						throw new Error('No response from the AI');
+					}
+					setIsUpdating(false);
+					return htmlify(response)
+				}
+				catch (e) {
+					console.error(e)
+				}
+				finally {
+					setIsUpdating(false);
+				}
+			}, []);
 
 		return (
 			<HTMLContainer className="tl-embed-container" id={shape.id}>
@@ -200,7 +244,7 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 									borderRadius: 'var(--radius-2)',
 								}}
 							/>
-							{isOnlySelected && (
+							{isOnlySelected && (<>
 								<div
 									style={{
 										all: 'unset',
@@ -225,6 +269,69 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 										</button>
 									</Dropdown>
 								</div>
+
+								{/* Add a chatbox at the bottom of the component */}
+								<div
+									style={{
+										position: 'absolute',
+										top: '100%',
+										left: 0,
+										width: '100%',
+										backgroundColor: 'var(--color-panel)',
+										borderTop: '1px solid var(--color-panel-contrast)',
+										padding: 4,
+										boxShadow: '0px 0px 4px 0px var(--color-muted-1)',
+									}}
+								>
+									<textarea
+										className='base_font'
+										disabled={isUpdating}
+										ref={textAreaRef}
+										onPointerDown={stopEventPropagation}
+										style={{
+											width: '100%',
+											height: 100,
+											border: '1px solid var(--color-panel-contrast)',
+											borderRadius: 'var(--radius-2)',
+											padding: 4,
+										}}
+										placeholder="Suggest an improvement..."
+									/>
+
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'flex-end',
+											marginTop: 4,
+										}}
+									>
+
+										<button
+											disabled={isUpdating}
+											onPointerDown={stopEventPropagation}
+											onClick={
+												!isUpdating ? async () => {
+													const text = textAreaRef.current?.value
+													if (!text) return
+													const html = await handleSendMessage(
+														text,
+														shape.props.html,
+														setIsUpdating
+													)
+													if (!html) return
+													const next = structuredClone(shape)
+													next.props.html = html
+													this.editor.updateShape(next)
+												} : undefined}
+											className='makereal_button base_font'
+										>
+											{isUpdating ? <DefaultSpinner /> : 'Send'}
+										</button>
+
+									</div>
+								</div>
+							</>
+
 							)}
 							<div
 								style={{
