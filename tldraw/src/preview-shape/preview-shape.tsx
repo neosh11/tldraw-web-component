@@ -8,8 +8,10 @@ import {
 	ShapeUtil,
 	SvgExportContext,
 	TLBaseShape,
+	TLResizeInfo,
 	TldrawUiIcon,
 	Vec,
+	resizeBox,
 	stopEventPropagation,
 	toDomPrecision,
 	useIsEditing,
@@ -60,6 +62,15 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 	override isAspectRatioLocked = (_shape: MakeRealShape) => false
 
 	override canResize = (_shape: MakeRealShape) => true
+	override onResize(shape: MakeRealShape, info: TLResizeInfo<MakeRealShape>) {
+		const resized = resizeBox(shape, info)
+		const next = structuredClone(info.initialShape)
+		next.x = resized.x
+		next.y = resized.y
+		next.props.w = resized.props.w
+		next.props.h = resized.props.h
+		return next
+	}
 
 	override component(shape: MakeRealShape) {
 		const isEditing = useIsEditing(shape.id)
@@ -86,8 +97,6 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 
 		const isLoading = linkUploadVersion === undefined || uploadedShapeId !== shape.id
 
-		const htmlIsEmpty = shape.props.parts?.length === 0
-
 		const rCursor = useRef(0)
 
 		useEffect(() => {
@@ -111,9 +120,6 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 			}
 
 			rCursor.current = shape.props.parts.length
-			// iframe.contentDocument.close()
-			// iframe.contentDocument.open()
-			// iframe.contentDocument.write(html)
 		}, [isLoading, shape.props.parts])
 
 		return (
@@ -166,74 +172,87 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 					</div>
 				) : (
 					<>
-						<iframe
-							id={`iframe-1-${shape.id}`}
-							ref={htmlIframe}
-							// src={`${uploadUrl}?preview=1&v=${linkUploadVersion}`}
-							width={toDomPrecision(shape.props.w)}
-							height={toDomPrecision(shape.props.h)}
-							draggable={false}
-							allow="geolocation;midi;usb;magnetometer;fullscreen;animations;picture-in-picture;accelerometer;vr;camera;microphone"
+						<div
 							style={{
-								backgroundColor: 'var(--color-panel)',
-								pointerEvents: isEditing ? 'auto' : 'none',
+								position: 'relative',
+								width: '100%',
+								height: '100%',
+								backgroundColor: 'var(--color-culled)',
 								boxShadow,
 								border: '1px solid var(--color-panel-contrast)',
 								borderRadius: 'var(--radius-2)',
 							}}
-						/>
-						{isOnlySelected && (
+						>
+
+							<iframe
+								id={`iframe-1-${shape.id}`}
+								ref={htmlIframe}
+								// src={`${uploadUrl}?preview=1&v=${linkUploadVersion}`}
+								width={toDomPrecision(shape.props.w)}
+								height={toDomPrecision(shape.props.h)}
+								draggable={false}
+								allow="geolocation;midi;usb;magnetometer;fullscreen;animations;picture-in-picture;accelerometer;vr;camera;microphone"
+								style={{
+									backgroundColor: 'var(--color-panel)',
+									pointerEvents: isEditing ? 'auto' : 'none',
+									boxShadow,
+									border: '1px solid var(--color-panel-contrast)',
+									borderRadius: 'var(--radius-2)',
+								}}
+							/>
+							{isOnlySelected && (
+								<div
+									style={{
+										all: 'unset',
+										position: 'absolute',
+										top: -3,
+										right: -45,
+										height: 40,
+										width: 40,
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										cursor: 'pointer',
+										pointerEvents: 'all',
+									}}
+								>
+									<Dropdown boxShadow={boxShadow} html={shape.props.html} >
+										<button
+											className="makereal_dropdown"
+											onPointerDown={stopEventPropagation}
+										>
+											<TldrawUiIcon icon="dots-vertical" />
+										</button>
+									</Dropdown>
+								</div>
+							)}
 							<div
 								style={{
-									all: 'unset',
+									textAlign: 'center',
 									position: 'absolute',
-									top: -3,
-									right: -45,
-									height: 40,
-									width: 40,
+									bottom: isEditing ? -40 : 0,
+									padding: 4,
+									fontFamily: 'inherit',
+									fontSize: 12,
+									left: 0,
+									width: '100%',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
-									cursor: 'pointer',
-									pointerEvents: 'all',
+									pointerEvents: 'none',
 								}}
 							>
-								<Dropdown boxShadow={boxShadow} html={shape.props.html} >
-									<button
-										className="makereal_dropdown"
-										onPointerDown={stopEventPropagation}
-									>
-										<TldrawUiIcon icon="dots-vertical" />
-									</button>
-								</Dropdown>
+								<span
+									style={{
+										background: 'var(--color-panel)',
+										padding: '4px 12px',
+										borderRadius: 99,
+										border: '1px solid var(--color-muted-1)',
+									}}
+								>
+									{isEditing ? 'Click the canvas to exit' : 'Double click to interact'}
+								</span>
 							</div>
-						)}
-						<div
-							style={{
-								textAlign: 'center',
-								position: 'absolute',
-								bottom: isEditing ? -40 : 0,
-								padding: 4,
-								fontFamily: 'inherit',
-								fontSize: 12,
-								left: 0,
-								width: '100%',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								pointerEvents: 'none',
-							}}
-						>
-							<span
-								style={{
-									background: 'var(--color-panel)',
-									padding: '4px 12px',
-									borderRadius: 99,
-									border: '1px solid var(--color-muted-1)',
-								}}
-							>
-								{isEditing ? 'Click the canvas to exit' : 'Double click to interact'}
-							</span>
 						</div>
 					</>
 				)}

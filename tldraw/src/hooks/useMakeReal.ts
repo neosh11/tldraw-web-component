@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 import { createShapeId, getSvgAsImage, sortByIndex, useDialogs, useEditor, useToasts } from 'tldraw'
-import { MakeRealShape } from '../PreviewShape/preview-shape'
 import { getTextFromSelectedShapes } from '../lib/get-text-from-selected-shapes'
 import { htmlify } from '../lib/htmlify'
 import { blobToBase64 } from '../lib/blob-to-base64'
 import { USER_PROMPT, USER_PROMPT_WITH_PREVIOUS_DESIGN } from '../lib/settings'
 import { MakeRealFunc } from '../interfaces'
+import { MakeRealShape } from '../preview-shape/preview-shape'
 
 /**
  * @param makeRealFunction A function that returns a promise that resolves to an html string.
@@ -147,7 +147,6 @@ export function useMakeReal({ makeRealFunc }: { makeRealFunc: MakeRealFunc }
                             type: 'primary',
                             label: 'OpenAI docs',
                             onClick: () => {
-                                // open a new tab with the url...
                                 window.open(
                                     'https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4-gpt-4-turbo-gpt-4o-and-gpt-4o-mini',
                                     '_blank'
@@ -158,7 +157,6 @@ export function useMakeReal({ makeRealFunc }: { makeRealFunc: MakeRealFunc }
                             type: 'primary',
                             label: 'Learn more',
                             onClick: () => {
-                                // open a new tab with the url...
                                 window.open(
                                     'https://tldraw.notion.site/Make-Real-FAQs-93be8b5273d14f7386e14eb142575e6e',
                                     '_blank'
@@ -177,7 +175,6 @@ export function useMakeReal({ makeRealFunc }: { makeRealFunc: MakeRealFunc }
                         type: 'primary',
                         label: 'Read the guide',
                         onClick: () => {
-                            // open a new tab with the url...
                             window.open(
                                 'https://tldraw.notion.site/Make-Real-FAQs-93be8b5273d14f7386e14eb142575e6e',
                                 '_blank'
