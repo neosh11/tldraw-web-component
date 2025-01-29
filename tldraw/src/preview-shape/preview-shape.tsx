@@ -21,7 +21,6 @@ import React from 'react'
 import { Dropdown } from '../components/dropdown'
 import { useMakeRealFunc } from '../providers/make-real-func-provider'
 import { IMPROVEMENT_PROMPT } from '../lib/settings'
-import html2canvas from "html2canvas";
 import { htmlify } from '../lib/htmlify'
 
 
@@ -104,6 +103,8 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 		const rCursor = useRef(0)
 		const { makeRealFunc } = useMakeRealFunc()
 
+		const [textInput, setTextInput] = useState('')
+
 		useEffect(() => {
 			if (!isLoading) {
 				if (htmlIframe.current && shape.props.html) {
@@ -130,6 +131,11 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 		const textAreaRef = useRef<HTMLTextAreaElement>(null);
 		// Tracks whether we're currently sending the request
 		const [isUpdating, setIsUpdating] = useState(false);
+		useEffect(() => {
+			if (textAreaRef.current) {
+				textAreaRef.current.value = textInput
+			}
+		}, [textInput])
 
 		const handleSendMessage = useCallback(
 			async (
@@ -165,6 +171,22 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 					setIsUpdating(false);
 				}
 			}, []);
+
+
+		const sendMessage = useCallback(async () => {
+			if (isUpdating) return;
+			const text = textInput.trim();
+			if (!text) return;
+			const html = await handleSendMessage(text, shape.props.html, setIsUpdating);
+			if (!html) return;
+			const next = structuredClone(shape);
+			next.props.html = html;
+			this.editor.updateShape(next);
+			setTextInput('');
+		}, [
+			textInput, shape, this.editor, isUpdating, handleSendMessage
+		])
+
 
 		return (
 			<HTMLContainer className="tl-embed-container" id={shape.id}>
@@ -292,6 +314,18 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 										disabled={isUpdating}
 										ref={textAreaRef}
 										onPointerDown={stopEventPropagation}
+										onKeyDown={async (e) => {
+											if (e.key === 'Enter' && !e.shiftKey) {
+												e.preventDefault(); // Prevent new line
+												await sendMessage();
+											}
+										}}
+
+										onChange={(e) => {
+											setTextInput(e.target.value)
+										}}
+										value={textInput}
+
 										style={{
 											background: 'var(--color-panel)',
 											width: '100%',
@@ -319,15 +353,7 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 												!isUpdating ? async () => {
 													const text = textAreaRef.current?.value
 													if (!text) return
-													const html = await handleSendMessage(
-														text,
-														shape.props.html,
-														setIsUpdating
-													)
-													if (!html) return
-													const next = structuredClone(shape)
-													next.props.html = html
-													this.editor.updateShape(next)
+													await sendMessage();
 												} : undefined}
 											className='makereal_button base_font'
 										>
