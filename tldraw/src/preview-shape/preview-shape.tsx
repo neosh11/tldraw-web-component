@@ -278,6 +278,7 @@ export class PreviewShapeUtil extends ShapeUtil<MakeRealShape> {
 										border: '1px solid var(--color-muted-1)',
 										position: 'absolute',
 										top: '100%',
+										marginTop: 40,
 										left: 0,
 										width: '100%',
 										backgroundColor: 'var(--color-panel)',
