@@ -16,7 +16,10 @@ import { TldrawWebcomponentGetPropsFunc } from 'tldraw-web-component';
 
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('tldraw') tldraw!: ElementRef;
-  /** This function name is attached to the global scope, required due to the cooked nature of webcomponents */
+  /**
+   * This function name is attached to the global scope,
+   * required due to the nature of web-components.
+   */
   globalGetPropsFuncName = `__SECRET_DOM_DO_NOT_USE_GET_PROPS_FUNC_${this.generateRandomString()}`;
 
   async ngOnInit(): Promise<void> {
