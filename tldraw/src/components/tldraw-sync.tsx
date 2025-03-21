@@ -16,7 +16,6 @@ export const TldrawSync: React.FC<TldrawWebcomponentProps> = ({
     serverUri,
   } = useMemo(() => getPropsFunc(), []);
 
-
   const [userPreferences, setUserPreferences] = useState<TLUserPreferences>(tldrawUserPreferences);
   const user = useTldrawUser({ userPreferences, setUserPreferences })
   const store = useSync({
