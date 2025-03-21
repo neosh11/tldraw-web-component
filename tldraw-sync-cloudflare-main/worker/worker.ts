@@ -1,7 +1,6 @@
 import { AutoRouter, cors, error, IRequest } from 'itty-router'
 import { handleAssetDownload, handleAssetUpload } from './assetUploads'
 import { Environment } from './types'
-import { getRequestErrors } from './utils/auth'
 
 // make sure our sync durable object is made available to cloudflare
 export { TldrawDurableObject } from './TldrawDurableObject'
@@ -21,10 +20,6 @@ const router = AutoRouter<IRequest, [env: Environment, ctx: ExecutionContext]>({
 })
 	// requests to /connect are routed to the Durable Object, and handle realtime websocket syncing
 	.get('/connect/:roomId', async (request, env) => {
-		const error = await getRequestErrors(request, env)
-		if (error) {
-			return error
-		}
 		const id = env.TLDRAW_DURABLE_OBJECT.idFromName(request.params.roomId)
 		const room = env.TLDRAW_DURABLE_OBJECT.get(id)
 		return room.fetch(request.url, { headers: request.headers, body: request.body })

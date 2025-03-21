@@ -16,68 +16,28 @@
 <body>
     <div style="display: flex;flex-flow: column;height: 100%;">
         <div style="flex-grow: 1;">
-            <tldraw-sync-web-component room-id="home" server-uri="http://localhost:5172"
-                multiplayer-assets-func="multiplayerAssets"
-                make-real-func="makeRealFunction"
-                >
+            <tldraw-sync-web-component get-props-func="getProps">
             </tldraw-sync-web-component>
         </div>
     </div>
     <script>
-        function multiplayerAssets() {
+        function getProps() {
             return {
-                async upload(_asset, file) {
-                    const id = Math.random().toString(36).substr(2, 9); // Generate a unique ID
-                    const objectName = `${id}-${file.name}`;
-                    const url = `${'http://localhost:5172/uploads'}/${encodeURIComponent(objectName)}`;
-                    const response = await fetch(url, {
-                        method: 'PUT',
-                        body: file,
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to upload asset: ${response.statusText}`);
-                    }
-
-                    return url;
+                serverUri: 'http://localhost:5172/connect/hello',
+                tldrawUserPreferences: {
+                    id: "Math.random()",
+                    name: "John Doe",
                 },
-                resolve(asset) {
-                    return asset.props.src;
-                },
-            };
+                assets: {
+                    upload: async (asset, file) => ({
+                        src: "url",
+                    }),
+                    resolve: async (asset, ctx) => "url",
+                }
+            }
         }
 
-        function makeRealFunction(
-            developerPrompt,
-            image,
-            messages,
-        ) {
-            console.log(developerPrompt, image, messages);
 
-
-            return new Promise((resolve, reject) => {
-                const realFunction = async (developerPrompt, image, messages) => {
-                    const response = await fetch('http://localhost:5172/real', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            developerPrompt,
-                            image,
-                            messages,
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        reject(new Error(`Failed to make real: ${response.statusText}`));
-                    }
-                    const { response: f } = await response.json();
-                    resolve(f);
-                };
-                realFunction(developerPrompt, image, messages);
-            });
-        }
     </script>
     <script src="./index.umd.js"></script>
 </body>
