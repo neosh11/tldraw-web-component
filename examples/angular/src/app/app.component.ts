@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { TldrawWCUserProps } from 'tldraw-web-component';
+import { TldrawWebcomponentGetPropsFunc } from 'tldraw-web-component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -16,12 +16,14 @@ import { TldrawWCUserProps } from 'tldraw-web-component';
 
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('tldraw') tldraw!: ElementRef;
-  /** This function name is attached to the global scope, required due to the cooked nature of webcomponents */
-  globalMultiplayerAssetsFuncName = `__SECRET_DOM_DO_NOT_USE_MULTIPLAYER_ASSETS_FUNC_${this.generateRandomString()}`;
-  globalUserFuncName = `__SECRET_DOM_DO_NOT_USE_USER_FUNC_${this.generateRandomString()}`;
+  /**
+   * This function name is attached to the global scope,
+   * required due to the nature of web-components.
+   */
+  globalGetPropsFuncName = `__SECRET_DOM_DO_NOT_USE_GET_PROPS_FUNC_${this.generateRandomString()}`;
 
   async ngOnInit(): Promise<void> {
-    await import('tldraw-web-component');    
+    await import('tldraw-web-component');
     const container = document.querySelector('#tldraw');
     if (!container) {
       console.log('No container found');
@@ -29,54 +31,33 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     const tldrawElement = document.createElement('tldraw-sync-web-component');
-    // tldrawElement.setAttribute('debug', '1');
-    tldrawElement.setAttribute('room-id', '10');
-    tldrawElement.setAttribute('server-uri', 'http://localhost:5858');
-
-    (window as any)[this.globalMultiplayerAssetsFuncName] = this.multiplayerAssets.bind(this);
-    tldrawElement.setAttribute('multiplayer-assets-func', this.globalMultiplayerAssetsFuncName);
-
-    (window as any)[this.globalUserFuncName] = this.getUserFunc.bind(this);
-    tldrawElement.setAttribute('get-user-func', this.globalUserFuncName);
+    (window as any)[this.globalGetPropsFuncName] = this.getPropsFunc.bind(this);
+    tldrawElement.setAttribute('get-props-func', this.globalGetPropsFuncName);
     container.appendChild(tldrawElement);
   }
 
   ngOnDestroy(): void {
-    // Clean up the global functions
-    delete (window as any)[this.globalMultiplayerAssetsFuncName];
+    delete (window as any)[this.globalGetPropsFuncName];
   }
 
-  public multiplayerAssets(): any {
+  public getPropsFunc: TldrawWebcomponentGetPropsFunc = () => {
     return {
-      async upload(_asset: any, file: any) {
-        const id = Math.random().toString(36).substr(2, 9); // Generate a unique ID
-        const objectName = `${id}-${file.name}`;
-        const url = `${'http://localhost:5858/uploads'}/${encodeURIComponent(objectName)}`;
-        const response = await fetch(url, {
-          method: 'PUT',
-          body: file,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to upload asset: ${response.statusText}`);
-        }
-        return url;
+      serverUri: 'http://localhost:5172/connect/hello',
+      tldrawUserPreferences: {
+        id: "Math.random()",
+        name: "John Doe",
       },
-      resolve(asset: any) {
-        return asset.props.src;
+      assets: {
+        upload: async () => ({
+          src: "url",
+        }),
+        resolve: async () => "url",
       },
-    }
-  }
-
-  public getUserFunc(): TldrawWCUserProps {
-    console.log('getUserFunc called');
-    return {
-      id: '123',
-      name: 'John Doe',
+      tldrawProps: {}
     }
   }
 
   private generateRandomString(): string {
     return Math.random().toString(36).replace(/[^a-z]+/g, '') + Date.now().toString();
   }
-
 }
