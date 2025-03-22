@@ -8,24 +8,25 @@ import { TldrawWebcomponentProps } from "../interfaces";
 export const TldrawSync: React.FC<TldrawWebcomponentProps> = ({
   getPropsFunc
 }) => {
-  console.log('rerendering',)
   const {
     tldrawProps = {},
     tldrawUserPreferences,
     assets,
     serverUri,
   } = useMemo(() => getPropsFunc(), []);
-
   const [userPreferences, setUserPreferences] = useState<TLUserPreferences>(tldrawUserPreferences);
   const user = useTldrawUser({ userPreferences, setUserPreferences })
-  const store = useSync({
+  const store = serverUri ? useSync({
     uri: serverUri,
-    assets: assets,
+    assets: assets || {
+      upload: async () => { throw new Error("Please provide assets.") },
+      resolve: async () => { throw new Error("Please provide assets.") },
+    },
     userInfo: {
       id: userPreferences.id,
       name: userPreferences.name,
     }
-  });
+  }) : undefined;
 
   return (
     <>
